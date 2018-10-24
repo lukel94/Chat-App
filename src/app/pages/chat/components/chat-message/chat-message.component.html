@@ -7,7 +7,7 @@
       {{message.sender.firstName}} {{message.sender.lastName}}
     </div>
     <small class="timestamp">
-      {{message.createAt | date:'medium'}}
+      {{message.createdAt.toDate() | date:'medium'}}
     </small>
     <div class="message">
       {{message.message}}

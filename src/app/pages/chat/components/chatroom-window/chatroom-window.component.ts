@@ -1,64 +1,64 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable, Subscription } from 'rxjs';
+import { ChatroomService } from 'src/app/services/chatroom.service';
+import { LoadingService } from 'src/app/services/loading.service';
 
 @Component({
   selector: 'app-chatroom-window',
   templateUrl: './chatroom-window.component.html',
   styleUrls: ['./chatroom-window.component.scss']
 })
-export class ChatroomWindowComponent implements OnInit {
+export class ChatroomWindowComponent implements OnInit, OnDestroy, AfterViewChecked {
 
-  public dummyData = [
-    //TODO replace with firebase data
-    {
-      message: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Pulvinar neque laoreet suspendisse interdum consectetur libero id faucibus nisl.",
-      createAt: new Date(),
-      sender: {
-        firstName: "Selina",
-        lastName: "Meyer",
-        photoUrl : "http://via.placeholder.com/50x50"
-      }
-    },
-    {
-      message: "Ut etiam sit amet nisl. Nunc sed blandit libero volutpat sed. Tellus in metus vulputate eu. ",
-      createAt: new Date(),
-      sender: {
-        firstName: "Roy",
-        lastName: "Weed",
-        photoUrl : "http://via.placeholder.com/50x50"
-      }
-    },    
-    {
-      message: "Magna fringilla urna porttitor rhoncus dolor purus non enim. Iaculis nunc sed augue lacus viverra vitae congue. ",
-      createAt: new Date(),
-      sender: {
-        firstName: "Mikey",
-        lastName: "Miller",
-        photoUrl : "http://via.placeholder.com/50x50"
-      }
-    },
-    {
-      message: "Purus gravida quis.",
-      createAt: new Date(),
-      sender: {
-        firstName: "Ariana",
-        lastName: "Grande",
-        photoUrl : "http://via.placeholder.com/50x50"
-      }
-    },
-    {
-      message: "At volutpat diam ut venenatis tellus in metus vulputate eu. Viverra nam libero justo laoreet sit amet.",
-      createAt: new Date(),
-      sender: {
-        firstName: "Bob",
-        lastName: "Anderson",
-        photoUrl : "http://via.placeholder.com/50x50"
-      }
-    }
-  ];
+  @ViewChild('scrollContainer') private scrollContainer: ElementRef;
 
-  constructor() { }
+  private subscriptions: Subscription[] = [];
+  public chatroom: Observable<any>;
+  public messages: Observable<any>;
+
+  constructor(
+    private router: ActivatedRoute,
+    private chatroomService: ChatroomService,
+    private loadingService: LoadingService
+  ) { 
+    this.subscriptions.push(
+      this.chatroomService.selectedChatroom.subscribe(chatroom => {
+        this.chatroom = chatroom;
+        // this.loadingService.isLoading.next(false);
+      })
+    );
+
+    this.subscriptions.push(
+      this.chatroomService.selectedChatroomMessages.subscribe(messages => {
+        this.messages = messages;
+        // this.loadingService.isLoading.next(false);
+      })
+    )
+  }
 
   ngOnInit() {
+    this.scrollToBottom();
+    this.subscriptions.push(
+      this.router.paramMap.subscribe(params => {
+        const chatroomId = params.get('chatroomId');
+        this.chatroomService.changeChatroom.next(chatroomId);
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  private scrollToBottom(): void {
+    try{
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch(err) {}
   }
 
 }

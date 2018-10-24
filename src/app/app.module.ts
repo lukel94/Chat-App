@@ -9,7 +9,8 @@ import { NgxLoadingModule } from 'ngx-loading';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFirestoreModule } from 'angularfire2/firestore';
 import { AngularFireStorageModule } from 'angularfire2/storage';
-import { AngularFireAuthModule } from 'angularfire2/auth';
+import { AngularFireDatabase, AngularFireDatabaseModule } from 'angularfire2/database';
+import { AngularFireAuth, AngularFireAuthModule } from 'angularfire2/auth';
 
 //Guards
 import { AuthGuard } from './guards/auth.guard';
@@ -18,6 +19,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AlertService } from './services/alert.service';
 import { LoadingService } from './services/loading.service';
 import { AuthService } from './services/auth.service';
+import { ChatroomService } from './services/chatroom.service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -30,6 +32,7 @@ import { ChatroomTitleBarComponent } from './pages/chat/components/chatroom-titl
 import { ChatMessageComponent } from './pages/chat/components/chat-message/chat-message.component';
 import { ChatroomWindowComponent } from './pages/chat/components/chatroom-window/chatroom-window.component';
 import { ChatInputComponent } from './pages/chat/components/chat-input/chat-input.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 
 
@@ -44,7 +47,8 @@ import { ChatInputComponent } from './pages/chat/components/chat-input/chat-inpu
     ChatroomTitleBarComponent,
     ChatMessageComponent,
     ChatroomWindowComponent,
-    ChatInputComponent
+    ChatInputComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
@@ -52,13 +56,19 @@ import { ChatInputComponent } from './pages/chat/components/chat-input/chat-inpu
     AlertModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,
-    NgxLoadingModule.forRoot({})
+    NgxLoadingModule.forRoot({}),
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireStorageModule,
+    AngularFireDatabaseModule,
+    AngularFireAuthModule
   ],
   providers: [
     AlertService,
     LoadingService,
     AuthService,
-    AuthGuard
+    AuthGuard,
+    ChatroomService
   ],
   bootstrap: [AppComponent]
 })
